@@ -3,17 +3,17 @@
 # mysql bakup  #
 ################
 #!/bin/bash
-user=root
-db=(squat)
-date=$(date +%m%d)
-bakdir=/data/common/mysqlbak
-pass='mysqlrootP@$$w0rd'
-saveday=3
+USER="root"
+DB=(squat)
+DAY=$(date +%m%d)
+BAK_DIR="/data/common/mysqlbak"
+PASS='mysqlrootP@$$w0rd'
+SAVEDAY="3"
 #start backup
-for database in ${db[*]}
+for DATABASE in ${DB[*]}
 do
-  mysqldump -u$user -p$pass $database | gzip > $bakdir/$database\_$date.sql.gz
+  mysqldump -u${USER} -p${PASS} ${DATABASE} | gzip > ${BAK_DIR}/${DATABASE}\_${DAY}.sql.gz
 done
 sleep 1
-#clean $saveday days ago backup
-/bin/find $bakdir/ -name "*.sql.gz" -mtime +$saveday -exec rm -f {} \;
+#clean backup
+/bin/find ${BAK_DIR}/ -name "*.sql.gz" -mtime +${SAVEDAY} -exec rm -f {} \;
