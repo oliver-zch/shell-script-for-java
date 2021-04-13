@@ -36,7 +36,7 @@ java_stop() {
 #start project
 java_start() {
   BUILD_ID=dontKillMe
-  nohup java -jar -Xms${MEM}M -Xmx${MEM}M -XX:NewSize=${NewSize}M -Xmn${NewSize}M -XX:SurvivorRatio=8 -Dspring.config.location=${CONF_DIR}/application.yml -XX:+UseG1GC -XX:+PrintGCDetails -Xloggc:${LOGS_DIR}/gc.log -Duser.timezone=GMT+8 ${WD}/${JAR} >> ${LOGS_DIR}/catalina.out 2>&1 &
+  nohup java -jar -Xms${MEM}M -Xmx${MEM}M -XX:NewSize=${NewSize}M -Xmn${NewSize}M -XX:SurvivorRatio=8 -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=512M -Dspring.config.location=${CONF_DIR}/application.yml -XX:+UseG1GC -XX:+PrintGCDetails -Xloggc:${LOGS_DIR}/gc.log -Duser.timezone=GMT+8 ${WD}/${JAR} >> ${LOGS_DIR}/catalina.out 2>&1 &
   echo $! > ${WD}/bin/pid
   echo "${NAME} is starting, pid is $(cat ${PID_FILE})"
 }
