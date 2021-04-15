@@ -15,22 +15,33 @@ NEED_DING_MESSAGE="no" #是否需要钉钉消息通知, "yes" or "no"
 WEBHOOK='https://oapi.dingtalk.com/robot/send?access_token=31d9ccc566ab5baa20c67e8ec8c26ca35b1a6091f851d0027dc80d658d8a7a1c' #钉钉通知群机器人的webhook地址
 MESSAGE="oliver test" #钉钉通知消息内容
 AT_ALL="true" #是否@所有人, "true" or "false"
+#输出绿色字符
+showGreen() {
+  TEXT=$1
+  echo -e "\033[32m${TEXT}\033[0m"
+}
+#输出红色字符
+showRed()
+{
+  TEXT=$1
+  echo -e "\033[31m${TEXT}\033[0m"
+}
 #stop project
 java_stop() {
   MYPID=$(cat ${PID_FILE})
   if [ ${MYPID} > 0 ];then
-    echo "stoping ${NAME}, please wait a moment..."
+    showGreen "stoping ${NAME}, please wait a moment..."
     kill ${MYPID}
     sleep 10
-    ps -ef | grep ${MYPID} | grep -v grep
+    ps -ef | grep ${MYPID} | grep -v grep >> /dev/null
     if [ $? -eq 0 ];then
       kill -9 ${MYPID}
-      echo "${NAME} stop failed, but zch has been forcibly stopped."
+      showRed "${NAME} stop failed, but zch has been forcibly stopped."
     else
-      echo "${NAME} stoped successfully"
+      showGreen "${NAME} stoped successfully"
     fi
   else
-    echo "pid:${MYPID} does not exist, confirm whether the process is running."
+    showRed "pid:${MYPID} does not exist, confirm whether the process is running."
   fi
 }
 #start project
@@ -38,7 +49,7 @@ java_start() {
   BUILD_ID=dontKillMe
   nohup java -jar -Xms${MEM}M -Xmx${MEM}M -XX:NewSize=${NewSize}M -Xmn${NewSize}M -XX:SurvivorRatio=8 -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=512M -Dspring.config.location=${CONF_DIR}/application.yml -XX:+UseG1GC -XX:+PrintGCDetails -Xloggc:${LOGS_DIR}/gc.log -Duser.timezone=GMT+8 ${WD}/${JAR} >> ${LOGS_DIR}/catalina.out 2>&1 &
   echo $! > ${WD}/bin/pid
-  echo "${NAME} is starting, pid is $(cat ${PID_FILE})"
+  showGreen "${NAME} is starting, pid is $(cat ${PID_FILE})"
 }
 #dingding inform
 dingding_inform() {
@@ -55,11 +66,28 @@ dingding_inform() {
              }
           }'
   else
-    echo "skip dingding inform, because variable "NEED_DING_MESSAGE" is no"
+    showRed "skip dingding inform, because variable "NEED_DING_MESSAGE" is no"
+  fi
+}
+#view logs
+view_logs() {
+  tail -f ${LOGS_DIR}/catalina.out
+}
+#project status
+check_pid() {
+  MYPID=$(cat ${PID_FILE})
+  ps -ef | grep ${MYPID} | grep -v grep >> /dev/null
+  if [ $? -eq 0 ];then
+    showGreen "${NAME} is runnning..."
+  else
+    showRed "${NAME} is not running, please check."
   fi
 }
 #user interface
 case $1 in
+  status)
+           check_pid
+           ;;
   start)
            java_start
            ;;
@@ -77,11 +105,16 @@ case $1 in
            sleep 1
            java_start
            ;;
+  logs)
+           view_logs
+           ;;
   *)
-           echo "\t how to use me."
-           echo "java.sh start; use to start ${NAME}"
-           echo "java.sh stop; use to stop ${NAME}"
-           echo "java.sh restart; use to restart ${NAME}"
-           echo "java.sh release; use to release a new version, better for jenkins"
+           showGreen "\t how to use me."
+           showGreen "java.sh status; use to check ${NAME} status"
+           showGreen "java.sh start; use to start ${NAME}"
+           showGreen "java.sh stop; use to stop ${NAME}"
+           showGreen "java.sh restart; use to restart ${NAME}"
+           showGreen "java.sh release; use to release a new version, better for jenkins"
+           showGreen "java.sh logs; use to view ${NAME} logs"
            ;;
 esac
