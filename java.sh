@@ -51,6 +51,13 @@ java_start() {
   echo $! > ${WD}/bin/pid
   showGreen "${NAME} is starting, pid is $(cat ${PID_FILE})"
 }
+#start status check
+java_start_status_check() {
+  timeout 60 tail -fn 0 ${LOGS_DIR}/catalina.out | sed '/JVM running/ q' > /dev/null
+  if [ $? -ne 0 ];then
+    MESSAGE="${NAME} start failed, please call zch to check"
+  fi
+}
 #dingding inform
 dingding_inform() {
   if [ ${NEED_DING_MESSAGE} = yes ];then
