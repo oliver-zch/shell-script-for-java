@@ -2,6 +2,7 @@
 #######################
 # write by zch        #
 # Java Generic Script #
+# version:20210527    #
 #######################
 NAME="smartgtm_gaia-smartgtm" #项目名称
 WD="/data/new-km/back/gaia-smartgtm" #工作路径
@@ -36,7 +37,7 @@ java_stop() {
     ps -ef | grep ${MYPID} | grep -v grep >> /dev/null
     if [ $? -eq 0 ];then
       kill -9 ${MYPID}
-      showRed "${NAME} stop failed, but zch has been forcibly stopped."
+      showRed "${NAME} stop failed, but was forcibly stopped by kill -9."
     else
       showGreen "${NAME} stoped successfully"
     fi
@@ -53,9 +54,13 @@ java_start() {
 }
 #start status check
 java_start_status_check() {
+  showGreen "It is checking the status and will take one minute. You can also stop by ctrl+c."
   timeout 60 tail -fn 0 ${LOGS_DIR}/catalina.out | sed '/JVM running/ q' > /dev/null
   if [ $? -ne 0 ];then
-    MESSAGE="${NAME} start failed, please call zch to check"
+    MESSAGE="${NAME} start failed, please call oliver to check."
+    showRed "${MESSAGE}"
+  else
+    showGreen "${NAME} started successfully."
   fi
 }
 #dingding inform
@@ -97,6 +102,7 @@ case $1 in
            ;;
   start)
            java_start
+           java_start_status_check
            ;;
   stop)
            java_stop
@@ -105,12 +111,14 @@ case $1 in
            java_stop
            sleep 1
            java_start
+           java_start_status_check
            dingding_inform
            ;;
   restart)
            java_stop
            sleep 1
            java_start
+           java_start_status_check
            ;;
   logs)
            view_logs
