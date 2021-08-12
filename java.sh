@@ -2,7 +2,7 @@
 #######################
 # write by zch        #
 # Java Generic Script #
-# version:20210527    #
+# version:20210808    #
 #######################
 NAME="smartgtm_gaia-smartgtm" #项目名称
 WD="/data/new-km/back/gaia-smartgtm" #工作路径
@@ -13,8 +13,8 @@ CONF_DIR="${WD}/config" #application.yml位置
 LOGS_DIR="${WD}/logs" #nohup启动后的日志输出位置
 PID_FILE="${WD}/bin/pid" #项目进程号
 NEED_DING_MESSAGE="no" #是否需要钉钉消息通知, "yes" or "no"
-WEBHOOK='https://oapi.dingtalk.com/robot/send?access_token=31d9ccc566ab5baa20c67e8ec8c26ca35b1a6091f851d0027dc80d658d8a7a1c' #钉钉通知群机器人的webhook地址
-MESSAGE="oliver test" #钉钉通知消息内容
+WEBHOOK='' #钉钉通知群机器人的webhook地址
+MESSAGE="" #钉钉通知消息内容
 AT_ALL="true" #是否@所有人, "true" or "false"
 #输出绿色字符
 showGreen() {
@@ -102,7 +102,6 @@ case $1 in
            ;;
   start)
            java_start
-           java_start_status_check
            ;;
   stop)
            java_stop
@@ -118,7 +117,6 @@ case $1 in
            java_stop
            sleep 1
            java_start
-           java_start_status_check
            ;;
   logs)
            view_logs
