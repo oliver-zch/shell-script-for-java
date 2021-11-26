@@ -54,7 +54,7 @@ java_start() {
 }
 #start status check
 java_start_status_check() {
-  showGreen "It is checking the status and will take one minute. You can also stop by ctrl+c."
+  showGreen "It is checking the status and will take one minute."
   timeout 60 tail -fn 0 ${LOGS_DIR}/catalina.out | sed '/JVM running/ q' > /dev/null
   if [ $? -ne 0 ];then
     MESSAGE="${NAME} start failed, please call oliver to check."
