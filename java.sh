@@ -2,13 +2,14 @@
 #######################
 # write by zch        #
 # Java Generic Script #
-# version:20210808    #
+# version:20211215    #
 #######################
-NAME="smartgtm_gaia-smartgtm" #项目名称
-WD="/data/new-km/back/gaia-smartgtm" #工作路径
-MEM="12288" #JVM最大内存,单位MB
-NewSize="4096" #JVM新生代内存,单位MB
-JAR="gaia-smartgtm-web.jar" #项目jar包名字
+NAME="" #项目名称
+WD="" #工作路径
+MEM="" #JVM最大内存,单位MB
+NewSize="" #JVM新生代内存,单位MB
+JAR="" #项目jar包名字
+PORT="" #项目启动的端口号
 CONF_DIR="${WD}/config" #application.yml位置
 LOGS_DIR="${WD}/logs" #nohup启动后的日志输出位置
 PID_FILE="${WD}/bin/pid" #项目进程号
@@ -55,13 +56,17 @@ java_start() {
 #start status check
 java_start_status_check() {
   showGreen "It is checking the status and will take one minute."
-  timeout 60 tail -fn 0 ${LOGS_DIR}/catalina.out | sed '/JVM running/ q' > /dev/null
-  if [ $? -ne 0 ];then
-    MESSAGE="${NAME} start failed, please call oliver to check."
-    showRed "${MESSAGE}"
-  else
-    showGreen "${NAME} started successfully."
-  fi
+  for i in {1..11}
+  do
+    netstat -ntl | grep ${PORT} >> /dev/null
+    if [ $? -eq 0 ];then
+      showGreen "${NAME} started successfully."
+      break
+    else
+      MESSAGE="${NAME} release failed, please call oliver to check."
+      sleep 5
+    fi
+  done
 }
 #dingding inform
 dingding_inform() {
