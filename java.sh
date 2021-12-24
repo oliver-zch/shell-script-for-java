@@ -1,17 +1,17 @@
-#!/bin/bash
 #######################
 # write by zch        #
 # Java Generic Script #
-# version:20211215    #
+# version:20211224    #
 #######################
+#!/bin/bash
 NAME="" #项目名称
-WD="" #工作路径
+WD="$(cd `dirname $0`/..; pwd)" #项目目录
 MEM="" #JVM最大内存,单位MB
 NewSize="" #JVM新生代内存,单位MB
-JAR="" #项目jar包名字
+JAR="gaia.jar" #项目jar包名字
 PORT="" #项目启动的端口号
 CONF_DIR="${WD}/config" #application.yml位置
-LOGS_DIR="${WD}/logs" #nohup启动后的日志输出位置
+LOGS_DIR="${WD}/logs" #项目启动后的日志输出位置
 PID_FILE="${WD}/bin/pid" #项目进程号
 NEED_DING_MESSAGE="no" #是否需要钉钉消息通知, "yes" or "no"
 WEBHOOK='' #钉钉通知群机器人的webhook地址
@@ -60,13 +60,19 @@ java_start_status_check() {
   do
     netstat -ntl | grep ${PORT} >> /dev/null
     if [ $? -eq 0 ];then
+      STATUS="1"
       showGreen "${NAME} started successfully."
       break
     else
-      MESSAGE="${NAME} release failed, please call oliver to check."
+      STATUS="0"
       sleep 5
     fi
   done
+
+  if [ ${STATUS} -eq 0 ];then
+    MESSAGE="${NAME} release failed, please call oliver to check."
+    showRed "${MESSAGE}"
+  fi
 }
 #dingding inform
 dingding_inform() {
