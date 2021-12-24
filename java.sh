@@ -1,7 +1,7 @@
 #######################
 # write by zch        #
 # Java Generic Script #
-# version:20211224    #
+# version:20211225    #
 #######################
 #!/bin/bash
 NAME="" #项目名称
@@ -9,7 +9,6 @@ WD="$(cd `dirname $0`/..; pwd)" #项目目录
 MEM="" #JVM最大内存,单位MB
 NewSize="" #JVM新生代内存,单位MB
 JAR="gaia.jar" #项目jar包名字
-PORT="" #项目启动的端口号
 CONF_DIR="${WD}/config" #application.yml位置
 LOGS_DIR="${WD}/logs" #项目启动后的日志输出位置
 PID_FILE="${WD}/bin/pid" #项目进程号
@@ -31,7 +30,8 @@ showRed()
 #stop project
 java_stop() {
   MYPID=$(cat ${PID_FILE})
-  if [ ${MYPID} > 0 ];then
+  ps -ef | grep ${MYPID} | grep -v grep >> /dev/null
+  if [ $? -eq 0 ];then
     showGreen "stoping ${NAME}, please wait a moment..."
     kill ${MYPID}
     sleep 10
@@ -43,7 +43,7 @@ java_stop() {
       showGreen "${NAME} stoped successfully"
     fi
   else
-    showRed "pid:${MYPID} does not exist, confirm whether the process is running."
+    showRed "${NAME} is not running."
   fi
 }
 #start project
@@ -58,7 +58,7 @@ java_start_status_check() {
   showGreen "It is checking the status and will take one minute."
   for i in {1..11}
   do
-    netstat -ntl | grep ${PORT} >> /dev/null
+    netstat -ntlp | grep $(cat ${PID_FILE}) >> /dev/null
     if [ $? -eq 0 ];then
       STATUS="1"
       showGreen "${NAME} started successfully."
