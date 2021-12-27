@@ -2,7 +2,7 @@
 #######################
 # write by zch        #
 # Java Generic Script #
-# version:20211225    #
+# version:20211227    #
 #######################
 NAME="" #项目名称
 WD="$(cd "$(dirname "$0")"/.. || exit 1; pwd)" #项目目录
