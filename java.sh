@@ -2,7 +2,7 @@
 #######################
 # write by zch        #
 # Java Generic Script #
-# version:20211227    #
+# version:20221123    #
 #######################
 NAME="" #项目名称
 WD="$(cd "$(dirname "$0")"/.. || exit 1; pwd)" #项目目录
@@ -30,17 +30,27 @@ showRed()
 #stop project
 java_stop() {
   MYPID=$(cat "${PID_FILE}")
-  if ps -ef | grep "${MYPID}" | grep -v grep >> /dev/null;
+  if pgrep -F "${PID_FILE}" >> /dev/null;
   then
     showGreen "stoping ${NAME}, please wait a moment..."
     kill "${MYPID}"
-    sleep 10
-    if ps -ef | grep "${MYPID}" | grep -v grep >> /dev/null;
-    then
+    #mark success or failure
+    for i in {1..9};
+    do
+      if ! pgrep -F "${PID_FILE}" >> /dev/null;
+      then
+        STATUS="1"
+        showGreen "${NAME} stoped successfully."
+        break
+      else
+        sleep 1
+        STATUS="0"
+      fi
+    done
+    #forced stop
+    if [ "${STATUS}" -eq 0 ];then
       kill -9 "${MYPID}"
       showRed "${NAME} stop failed, but was forcibly stopped by kill -9."
-    else
-      showGreen "${NAME} stoped successfully"
     fi
   else
     showRed "${NAME} is not running."
@@ -98,7 +108,7 @@ view_logs() {
 }
 #project status
 check_pid() {
-  if ps -ef | grep "$(cat "${PID_FILE}")" | grep -v grep >> /dev/null;
+  if pgrep -F "${PID_FILE}" >> /dev/null;
   then
     showGreen "${NAME} is runnning..."
   else
